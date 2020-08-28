@@ -8,10 +8,11 @@ class Transaction {
   }
 
   commit() {
-    this.time = new Date();
-    this.account.addTransaction(this);
+    if (this.isAllowed) {
+      this.time = new Date();
+      this.account.addTransaction(this);
+    }
   }
-
 
 }
 
@@ -28,7 +29,7 @@ class Account {
 
   get balance() {
     let sum = 0;
-    for(let transaction of this.transactions) {
+    for (let transaction of this.transactions) {
       sum += transaction.value;
     }
     return sum;
@@ -42,12 +43,20 @@ class Withdrawal extends Transaction {
     return -1 * this.amount;
   }
 
+  get isAllowed() {
+    return this.amount <= this.account.balance;
+  }
+
 }
 
 class Deposit extends Transaction {
 
   get value() {
     return this.amount;
+  }
+
+  get isAllowed() {
+    return true;
   }
 
 }
@@ -69,5 +78,9 @@ console.log('Transaction 2:', t2);
 t3 = new Deposit(120.00, myAccount);
 t3.commit();
 console.log('Transaction 3:', t3);
+
+t4 = new Withdrawal(20.00, myAccount);
+t4.commit();
+console.log('Transaction 4:', t4);
 
 console.log('Balance:', myAccount.balance);
